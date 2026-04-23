@@ -1,6 +1,6 @@
 # WeChat Official Account Publisher API
 
-基于 [Hono.js](https://hono.dev/) 的微信公众号文章发布 API 服务。支持 Markdown 转 HTML、上传封面图/内嵌图片、创建草稿、一键发布。
+基于 [Hono.js](https://hono.dev/) 的微信公众号文章发布 API 服务。支持 Markdown 转 HTML、AI 文生图自动生成封面、上传封面图/内嵌图片、创建草稿、一键发布。
 
 ## 快速开始
 
@@ -76,15 +76,40 @@ curl -X POST http://localhost:3009/mpapi/convert \
   -d '{"markdown":"# Hello\n\n**加粗**文本"}'
 ```
 
+### `POST /mpapi/generate-cover`
+
+AI 文生图，传入描述生成封面图。需要配置 `IMAGE_API_KEY`。
+
+```
+curl -X POST http://localhost:3009/mpapi/generate-cover \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"a cute cat reading a book","size":"1024x1024"}'
+```
+
+可选参数：`model`、`size`、`quality`、`n`。
+
 ### `POST /mpapi/full-publish`
 
 一站式发布：上传封面 → Markdown 转 HTML → 上传内嵌图片 → 创建草稿 → 发布。
 
+支持两种封面方式（二选一）：
+
+**方式一：上传本地图片**
 ```
 curl -X POST "http://localhost:3009/mpapi/full-publish" \
   -F "title=文章标题" \
   -F "markdown=@article.md" \
   -F "cover=@cover.jpg" \
+  -F "author=作者" \
+  -F "publish_method=draft"
+```
+
+**方式二：AI 自动生成封面**
+```
+curl -X POST "http://localhost:3009/mpapi/full-publish" \
+  -F "title=文章标题" \
+  -F "markdown=@article.md" \
+  -F "cover_prompt=a cute cat reading a book" \
   -F "author=作者" \
   -F "publish_method=draft"
 ```
@@ -100,6 +125,9 @@ curl -X POST "http://localhost:3009/mpapi/full-publish" \
 |---|---|---|
 | `WEIXIN_APP_ID` | 公众号 AppID | 是 |
 | `WEIXIN_APP_SECRET` | 公众号 AppSecret | 是 |
+| `IMAGE_API_KEY` | 文生图 API Key（用于自动生成封面） | 否 |
+| `IMAGE_API_BASE_URL` | 文生图 API 地址，默认 `https://api.tu-zi.com` | 否 |
+| `IMAGE_MODEL` | 文生图模型，默认 `gpt-image-2` | 否 |
 | `PORT` | 服务端口，默认 3000 | 否 |
 
 ## 注意事项
