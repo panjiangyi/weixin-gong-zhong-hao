@@ -15,5 +15,6 @@ serve({ fetch: app.fetch, port }, (info) => {
   console.log(`  POST      /mpapi/draftadd        - Create draft`);
   console.log(`  POST      /mpapi/publish         - Publish (free/mass)`);
   console.log(`  POST      /mpapi/convert         - Markdown to WeChat HTML`);
+  console.log(`  POST      /mpapi/generate-cover  - Generate cover image (text-to-image)`);
   console.log(`  POST      /mpapi/full-publish    - All-in-one publish`);
 });

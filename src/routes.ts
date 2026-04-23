@@ -8,6 +8,7 @@ import {
   massSend,
 } from "./wechat-client.js";
 import { markdownToWechatHtml } from "./markdown-converter.js";
+import { generateImage, generateImageBuffer } from "./image-client.js";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
@@ -177,6 +178,20 @@ app.post("/mpapi/convert", async (c) => {
   return c.json({ html });
 });
 
+// ---------- POST /mpapi/generate-cover ----------
+
+app.post("/mpapi/generate-cover", async (c) => {
+  const body = await c.req.json();
+  const { prompt, size, quality, model } = body;
+
+  if (!prompt) {
+    return c.json({ error: "prompt is required" }, 400);
+  }
+
+  const images = await generateImage(prompt, { size, quality, model });
+  return c.json({ images });
+});
+
 // ---------- POST /mpapi/full-publish (all-in-one) ----------
 
 app.post("/mpapi/full-publish", async (c) => {
@@ -185,7 +200,8 @@ app.post("/mpapi/full-publish", async (c) => {
 
   const title = body["title"] as string;
   const markdownRaw = body["markdown"];
-  const coverFile = body["cover"] as File;
+  const coverFile = body["cover"] as File | undefined;
+  const coverPrompt = (body["cover_prompt"] as string) || "";
   const author = (body["author"] as string) || "";
   const contentSourceUrl = (body["content_source_url"] as string) || "";
   const publishMethod = (body["publish_method"] as string) || "free";
@@ -196,18 +212,31 @@ app.post("/mpapi/full-publish", async (c) => {
       ? markdownRaw
       : await (markdownRaw as File).text();
 
-  if (!title || !markdown || !coverFile) {
+  if (!title || !markdown) {
+    return c.json({ error: "title and markdown are required" }, 400);
+  }
+
+  if (!coverFile && !coverPrompt) {
     return c.json(
-      { error: "title, markdown, and cover image are required" },
+      { error: "cover image file or cover_prompt is required" },
       400
     );
   }
 
-  // Step 1: Upload cover image as permanent material
+  // Step 1: Get cover image buffer
   const tmpDir = join(process.cwd(), ".tmp");
   if (!existsSync(tmpDir)) await mkdir(tmpDir, { recursive: true });
-  const coverPath = join(tmpDir, `cover_${Date.now()}_${coverFile.name}`);
-  await writeFile(coverPath, Buffer.from(await coverFile.arrayBuffer()));
+
+  let coverBuffer: Buffer;
+  if (coverFile) {
+    coverBuffer = Buffer.from(await coverFile.arrayBuffer());
+  } else {
+    // Generate cover via text-to-image
+    coverBuffer = await generateImageBuffer(coverPrompt);
+  }
+
+  const coverPath = join(tmpDir, `cover_${Date.now()}.jpg`);
+  await writeFile(coverPath, coverBuffer);
 
   let materialResult;
   try {
