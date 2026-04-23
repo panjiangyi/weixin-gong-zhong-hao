@@ -1,0 +1,25 @@
+{
+  "name": "weixin-gong-zhong-hao",
+  "version": "1.0.0",
+  "description": "WeChat Official Account article publishing API server",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.8",
+    "dotenv": "^17.4.2",
+    "form-data": "^4.0.2",
+    "hono": "^4.7.4",
+    "markdown-it": "^14.1.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^22.13.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
