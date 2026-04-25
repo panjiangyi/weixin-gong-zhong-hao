@@ -15,6 +15,16 @@ import { join } from "path";
 
 const app = new Hono();
 
+// ---------- API Key Auth ----------
+
+app.use("/mpapi/*", async (c, next) => {
+  const key = c.req.header("X-API-Key") || c.req.query("api_key");
+  if (!process.env.API_KEY || key !== process.env.API_KEY) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  await next();
+});
+
 app.onError((err, c) => {
   console.error(err);
   return c.json({ error: err.message }, 500);

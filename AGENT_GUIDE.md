@@ -6,7 +6,7 @@
 
 - **接口域名**: `http://123.56.160.120:3009`
 - **基础路径**: `/mpapi`
-- **鉴权方式**: 所有接口均已预配置凭据，无需额外传入 access_token、app_id、app_secret 等参数。
+- **鉴权方式**: 所有接口需要在请求头中传入 `X-API-Key`，或在 query 中传入 `api_key`，值为服务端配置的 `API_KEY` 环境变量。其余凭据（access_token、app_id、app_secret）已预配置，无需额外传入。
 
 ---
 
@@ -22,6 +22,7 @@
 **使用本地封面图：**
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/full-publish \
+  -H "X-API-Key: YOUR_API_KEY" \
   -F "title=文章标题" \
   -F "markdown=@article.md" \
   -F "cover=@cover.jpg" \
@@ -32,6 +33,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/full-publish \
 **使用 AI 自动生成封面（传入描述即可）：**
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/full-publish \
+  -H "X-API-Key: YOUR_API_KEY" \
   -F "title=文章标题" \
   -F "markdown=@article.md" \
   -F "cover_prompt=a beautiful tech blog cover with blue gradient" \
@@ -70,6 +72,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/full-publish \
 
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/generate-cover \
+  -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"prompt":"a minimalist tech blog cover","size":"1024x1024"}'
 ```
@@ -90,6 +93,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/generate-cover \
 
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/convert \
+  -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"markdown":"# 标题\n\n正文内容"}'
 ```
@@ -108,6 +112,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/convert \
 
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/addmaterial \
+  -H "X-API-Key: YOUR_API_KEY" \
   -F "media=@cover.jpg" \
   -F "type=thumb"
 ```
@@ -126,6 +131,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/addmaterial \
 
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/uploadimage \
+  -H "X-API-Key: YOUR_API_KEY" \
   -F "media=@inline-image.png"
 ```
 
@@ -143,6 +149,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/uploadimage \
 
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/draftadd \
+  -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "文章标题",
@@ -166,6 +173,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/draftadd \
 
 ```bash
 curl -X POST http://123.56.160.120:3009/mpapi/publish \
+  -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"media_id":"Step5返回的media_id","method":"free"}'
 ```
@@ -193,6 +201,7 @@ curl -X POST http://123.56.160.120:3009/mpapi/publish \
 ## 注意事项
 
 - 所有接口已预配置微信凭据，无需传入 token
+- **所有接口需要鉴权**：请求头 `X-API-Key` 或 query 参数 `api_key`，值为服务端 `API_KEY` 环境变量
 - 正文必须是 Markdown 或 HTML 格式，接口会自动转换为微信兼容的内联样式 HTML
 - 正文中的外部图片 URL 会在 full-publish 时自动上传到微信服务器替换
 - 封面图推荐使用 `cover_prompt` AI 生成，也可上传本地图片文件
