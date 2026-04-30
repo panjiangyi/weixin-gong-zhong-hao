@@ -149,6 +149,87 @@ export async function addDraft(
   return data.media_id;
 }
 
+// ---------- Update draft ----------
+
+export async function updateDraft(
+  accessToken: string,
+  article: {
+    media_id: string;
+    title?: string;
+    content?: string;
+    thumb_media_id?: string;
+    author?: string;
+    digest?: string;
+    content_source_url?: string;
+  }
+): Promise<void> {
+  await fetchJson(
+    `${WEIXIN_API}/draft/update?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ articles: [article] }),
+    }
+  );
+}
+
+// ---------- Get all drafts (simple list) ----------
+
+export async function getDraftsList(
+  accessToken: string,
+  offset: number = 0,
+  count: number = 20
+): Promise<{ total_count: number; items: { media_id: string; title: string }[] }> {
+  const data = await fetchJson(
+    `${WEIXIN_API}/draft/get?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ offset, count }),
+    }
+  );
+  return {
+    total_count: data.total_count,
+    items: (data.item || []).map((i: any) => ({
+      media_id: i.media_id,
+      title: i.content?.title || "",
+    })),
+  };
+}
+
+// ---------- Get draft by media_id ----------
+
+export interface DraftDetail {
+  media_id: string;
+  content: {
+    title: string;
+    author: string;
+    digest: string;
+    content: string;
+    content_source_url: string;
+    thumb_media_id: string;
+    show_cover_pic: number;
+    need_open_comment: number;
+    only_fans_can_comment: number;
+  };
+  update_time: number;
+}
+
+export async function getDraftById(
+  accessToken: string,
+  mediaId: string
+): Promise<DraftDetail> {
+  const data = await fetchJson(
+    `${WEIXIN_API}/draft/get?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ media_id: mediaId }),
+    }
+  );
+  return data;
+}
+
 // ---------- Free publish (no push notification) ----------
 
 export async function freePublish(

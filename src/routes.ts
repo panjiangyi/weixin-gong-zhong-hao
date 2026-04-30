@@ -4,6 +4,9 @@ import {
   addMaterial,
   uploadImageBuffer,
   addDraft,
+  updateDraft,
+  getDraftsList,
+  getDraftById,
   freePublish,
   massSend,
 } from "./wechat-client.js";
@@ -145,6 +148,74 @@ app.post("/mpapi/draftadd", async (c) => {
   });
 
   return c.json({ media_id: mediaId });
+});
+
+// ---------- POST /mpapi/draftupdate ----------
+
+app.post("/mpapi/draftupdate", async (c) => {
+  const accessToken = await resolveToken(c);
+  const contentType = c.req.header("content-type") || "";
+
+  let mediaId: string;
+  let title: string;
+  let html: string;
+  let thumbMediaId: string;
+  let author = "";
+
+  if (contentType.includes("application/json")) {
+    const body = await c.req.json();
+    mediaId = body.media_id;
+    title = body.title;
+    html = body.content;
+    thumbMediaId = body.thumb_media_id;
+    author = body.author || "";
+  } else {
+    const body = Object.fromEntries(new URLSearchParams(await c.req.text()));
+    mediaId = body.media_id;
+    title = body.title;
+    html = body.content;
+    thumbMediaId = body.thumb_media_id;
+    author = body.author || "";
+  }
+
+  if (!mediaId) {
+    return c.json({ error: "media_id is required" }, 400);
+  }
+
+  await updateDraft(accessToken, {
+    media_id: mediaId,
+    title: title || undefined,
+    content: html || undefined,
+    thumb_media_id: thumbMediaId || undefined,
+    author: author || undefined,
+  });
+
+  return c.json({ success: true });
+});
+
+// ---------- GET /mpapi/drafts ----------
+
+app.get("/mpapi/drafts", async (c) => {
+  const accessToken = await resolveToken(c);
+  const offset = parseInt(c.req.query("offset") || "0");
+  const count = parseInt(c.req.query("count") || "20");
+
+  const result = await getDraftsList(accessToken, offset, count);
+  return c.json(result);
+});
+
+// ---------- GET /mpapi/draft/:media_id ----------
+
+app.get("/mpapi/draft/:media_id", async (c) => {
+  const accessToken = await resolveToken(c);
+  const mediaId = c.req.param("media_id");
+
+  if (!mediaId) {
+    return c.json({ error: "media_id is required" }, 400);
+  }
+
+  const result = await getDraftById(accessToken, mediaId);
+  return c.json(result);
 });
 
 // ---------- POST /mpapi/publish ----------

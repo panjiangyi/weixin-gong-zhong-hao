@@ -54,6 +54,34 @@ curl -X POST "http://localhost:3009/mpapi/draftadd?access_token=TOKEN" \
   -d '{"title":"标题","html":"<p>内容</p>","thumb_media_id":"MEDIA_ID"}'
 ```
 
+### `GET /mpapi/drafts`
+
+获取所有草稿列表。
+
+```
+curl "http://localhost:3009/mpapi/drafts?access_token=TOKEN"
+```
+
+返回 `{ total_count, items: [{ media_id, title }] }`
+
+### `GET /mpapi/draft/:media_id`
+
+获取指定草稿详情。
+
+```
+curl "http://localhost:3009/mpapi/draft/EDIA_ID?access_token=TOKEN"
+```
+
+### `POST /mpapi/draftupdate`
+
+更新已有草稿。至少传入 `media_id`，其他字段可选。
+
+```
+curl -X POST "http://localhost:3009/mpapi/draftupdate?access_token=TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"media_id":"DRAFT_MEDIA_ID","title":"新标题","content":"<p>新内容</p>","thumb_media_id":"NEW_MEDIA_ID"}'
+```
+
 ### `POST /mpapi/publish`
 
 发布草稿。
@@ -125,6 +153,7 @@ curl -X POST "http://localhost:3009/mpapi/full-publish" \
 |---|---|---|
 | `WEIXIN_APP_ID` | 公众号 AppID | 是 |
 | `WEIXIN_APP_SECRET` | 公众号 AppSecret | 是 |
+| `API_KEY` | API 鉴权密钥，所有 `/mpapi/*` 接口需要传入 | 是 |
 | `IMAGE_API_KEY` | 文生图 API Key（用于自动生成封面） | 否 |
 | `IMAGE_API_BASE_URL` | 文生图 API 地址，默认 `https://api.tu-zi.com` | 否 |
 | `IMAGE_MODEL` | 文生图模型，默认 `gpt-image-2` | 否 |
