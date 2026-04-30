@@ -230,6 +230,36 @@ export async function getDraftById(
   return data;
 }
 
+// ---------- Get published articles ----------
+
+export async function getPublishedArticles(
+  accessToken: string,
+  offset: number = 0,
+  count: number = 20
+): Promise<{
+  total_count: number;
+  item_count: number;
+  items: { article_id: string; media_id: string; article_url: string }[];
+}> {
+  const data = await fetchJson(
+    `${WEIXIN_API}/freepublish/getarticle?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ offset, count }),
+    }
+  );
+  return {
+    total_count: data.total_count,
+    item_count: data.item_count,
+    items: (data.item || []).map((i: any) => ({
+      article_id: i.article_id,
+      media_id: i.media_id,
+      article_url: i.article_url,
+    })),
+  };
+}
+
 // ---------- Free publish (no push notification) ----------
 
 export async function freePublish(

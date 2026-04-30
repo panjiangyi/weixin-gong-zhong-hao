@@ -7,6 +7,7 @@ import {
   updateDraft,
   getDraftsList,
   getDraftById,
+  getPublishedArticles,
   freePublish,
   massSend,
 } from "./wechat-client.js";
@@ -215,6 +216,17 @@ app.get("/mpapi/draft/:media_id", async (c) => {
   }
 
   const result = await getDraftById(accessToken, mediaId);
+  return c.json(result);
+});
+
+// ---------- GET /mpapi/articles ----------
+
+app.get("/mpapi/articles", async (c) => {
+  const accessToken = await resolveToken(c);
+  const offset = parseInt(c.req.query("offset") || "0");
+  const count = parseInt(c.req.query("count") || "20");
+
+  const result = await getPublishedArticles(accessToken, offset, count);
   return c.json(result);
 });
 

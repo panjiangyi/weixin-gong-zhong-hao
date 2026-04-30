@@ -64,6 +64,16 @@ curl "http://localhost:3009/mpapi/drafts?access_token=TOKEN"
 
 返回 `{ total_count, items: [{ media_id, title }] }`
 
+### `GET /mpapi/articles`
+
+获取已发布文章列表。
+
+```
+curl "http://localhost:3009/mpapi/articles?access_token=TOKEN"
+```
+
+返回 `{ total_count, item_count, items: [{ article_id, media_id, article_url }] }`
+
 ### `GET /mpapi/draft/:media_id`
 
 获取指定草稿详情。
