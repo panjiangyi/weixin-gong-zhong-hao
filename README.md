@@ -13,9 +13,7 @@ npm run dev
 
 ## API 接口
 
-所有需要鉴权的接口支持两种方式：
-- Query 参数传入 `access_token`
-- 自动通过 `app_id` / `app_secret`（env 或 query 参数）获取 token
+所有 `/mpapi/*` 接口都需要通过 `api_key` 鉴权（配置在 .env 文件的 API_KEY 中）。
 
 ### `GET/POST /mpapi/getaccesstoken`
 
@@ -56,41 +54,35 @@ curl -X POST "http://localhost:3009/mpapi/draftadd?access_token=TOKEN" \
 
 ### `GET /mpapi/drafts`
 
-获取所有草稿列表。
+获取所有草稿列表。返回标题和 media_id。
 
 ```
-curl "http://localhost:3009/mpapi/drafts?access_token=TOKEN"
+curl "http://localhost:3009/mpapi/drafts?api_key=YOUR_API_KEY"
 ```
 
 返回 `{ total_count, items: [{ media_id, title }] }`
 
-### `GET /mpapi/articles`
-
-获取已发布文章列表。
-
-```
-curl "http://localhost:3009/mpapi/articles?access_token=TOKEN"
-```
-
-返回 `{ total_count, item_count, items: [{ article_id, media_id, article_url }] }`
-
 ### `GET /mpapi/draft/:media_id`
 
-获取指定草稿详情。
+获取指定草稿详情（包含标题、正文、作者等）。
 
 ```
-curl "http://localhost:3009/mpapi/draft/EDIA_ID?access_token=TOKEN"
+curl "http://localhost:3009/mpapi/draft/MEDIA_ID?api_key=YOUR_API_KEY"
 ```
 
 ### `POST /mpapi/draftupdate`
 
-更新已有草稿。至少传入 `media_id`，其他字段可选。
+更新已有草稿。至少传入 media_id，其他字段可选。
 
 ```
-curl -X POST "http://localhost:3009/mpapi/draftupdate?access_token=TOKEN" \
+curl -X POST "http://localhost:3009/mpapi/draftupdate?api_key=YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"media_id":"DRAFT_MEDIA_ID","title":"新标题","content":"<p>新内容</p>","thumb_media_id":"NEW_MEDIA_ID"}'
 ```
+
+### `GET /mpapi/articles`
+
+获取已发布文章列表（仅返回通过自由发布接口发布过的文章）。
 
 ### `POST /mpapi/publish`
 
@@ -163,7 +155,7 @@ curl -X POST "http://localhost:3009/mpapi/full-publish" \
 |---|---|---|
 | `WEIXIN_APP_ID` | 公众号 AppID | 是 |
 | `WEIXIN_APP_SECRET` | 公众号 AppSecret | 是 |
-| `API_KEY` | API 鉴权密钥，所有 `/mpapi/*` 接口需要传入 | 是 |
+| `API_KEY` | API 鉴权密钥 | 是 |
 | `IMAGE_API_KEY` | 文生图 API Key（用于自动生成封面） | 否 |
 | `IMAGE_API_BASE_URL` | 文生图 API 地址，默认 `https://api.tu-zi.com` | 否 |
 | `IMAGE_MODEL` | 文生图模型，默认 `gpt-image-2` | 否 |

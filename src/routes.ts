@@ -23,7 +23,11 @@ const app = new Hono();
 
 app.use("/mpapi/*", async (c, next) => {
   const key = c.req.header("X-API-Key") || c.req.query("api_key");
-  if (!process.env.API_KEY || key !== process.env.API_KEY) {
+  const expectedKey = process.env.API_KEY;
+  if (!expectedKey) {
+    return c.json({ error: "API_KEY not configured" }, 500);
+  }
+  if (key !== expectedKey) {
     return c.json({ error: "Unauthorized" }, 401);
   }
   await next();

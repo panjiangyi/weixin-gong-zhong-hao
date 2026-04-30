@@ -181,7 +181,7 @@ export async function getDraftsList(
   count: number = 20
 ): Promise<{ total_count: number; items: { media_id: string; title: string }[] }> {
   const data = await fetchJson(
-    `${WEIXIN_API}/draft/get?access_token=${accessToken}`,
+    `${WEIXIN_API}/draft/batchget?access_token=${accessToken}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -192,7 +192,7 @@ export async function getDraftsList(
     total_count: data.total_count,
     items: (data.item || []).map((i: any) => ({
       media_id: i.media_id,
-      title: i.content?.title || "",
+      title: i.content?.news_item?.[0]?.title || "",
     })),
   };
 }
